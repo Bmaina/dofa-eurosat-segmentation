@@ -1,0 +1,265 @@
+Metadata-Version: 2.4
+Name: geo-deep-learning
+Version: 0.1.0
+Summary: Geospatial deep learning framework for geospatial tasks
+Author-email: Victor Alhassan <victor.alhassan@NRCan-RNCan.gc.ca>, Luca Romanini <luca.romanini@NRCan-RNCan.gc.ca>
+License: MIT License
+        
+        Copyright (c) Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources, 2018
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+        
+Project-URL: Homepage, https://github.com/NRCan/geo-deep-learning
+Project-URL: Repository, https://github.com/NRCan/geo-deep-learning
+Project-URL: Issues, https://github.com/NRCan/geo-deep-learning/issues
+Keywords: pytorch,deep learning,machine learning,remote sensing,satellite imagery,earth observation,geospatial
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Topic :: Scientific/Engineering :: GIS
+Requires-Python: <3.13,>=3.12.0
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: lightning<2.6.0,>=2.5.0
+Requires-Dist: torchmetrics<1.9.0,>=1.8.0
+Requires-Dist: kornia<0.9.0,>=0.8.0
+Requires-Dist: timm<1.1.0,>=1.0.0
+Requires-Dist: segmentation-models-pytorch<0.6.0,>=0.5.0
+Requires-Dist: webdataset<1.1.0,>=1.0.0
+Requires-Dist: torchgeo<0.9.0,>=0.8.0
+Requires-Dist: rasterio<1.5.0,>=1.4.0
+Requires-Dist: numpy<2.4.0,>=2.3.0
+Requires-Dist: pandas<2.4.0,>=2.3.0
+Requires-Dist: matplotlib<3.11.0,>=3.10.0
+Requires-Dist: mlflow<3.5.0,>=3.4.0
+Requires-Dist: colorlog<7.0.0,>=6.9.0
+Requires-Dist: PyYAML<7.0.0,>=6.0.0
+Requires-Dist: jsonargparse[all]<4.42.0,>=4.41.0
+Requires-Dist: jupyterlab<5.0.0,>=4.0.0
+Provides-Extra: cpu
+Requires-Dist: torch<2.9.0,>=2.8.0; extra == "cpu"
+Requires-Dist: torchvision<0.24.0,>=0.23.0; extra == "cpu"
+Provides-Extra: cu128
+Requires-Dist: torch<2.9.0,>=2.8.0; extra == "cu128"
+Requires-Dist: torchvision<0.24.0,>=0.23.0; extra == "cu128"
+Provides-Extra: dev
+Requires-Dist: pytest<9.0.0,>=8.0.0; extra == "dev"
+Requires-Dist: ruff<1.0.0,>=0.8.0; extra == "dev"
+Requires-Dist: pre-commit<5.0.0,>=4.0.0; extra == "dev"
+Dynamic: license-file
+
+# Geo Deep Learning
+
+A PyTorch Lightning-based framework for geospatial deep learning with multi-sensor Earth observation data.
+
+## Overview
+
+Geo Deep Learning (GDL) is a modular framework designed to support a wide range of geospatial deep learning tasks such as semantic segmentation, object detection, and regression.
+Built on PyTorch Lightning, it provides efficient training pipelines for multi-sensor data.
+
+## Features
+
+- **Multi-sensor Support**: Handle multiple Earth observation sensors simultaneously.
+- **Modular Architecture**: Encoder-neck-decoder pattern with interchangeable components.
+- **WebDataset Integration**: Efficient large-scale data loading and processing.
+- **Multiple Model Types**: UNet++, SegFormer, DOFA (Dynamic-one-for-all Architecture).
+- **Distributed Training**: Multi-GPU training with supported strategies.
+- **MLflow Logging**: Comprehensive experiment tracking and model versioning.
+- **Flexible Data Pipeline**: Support for CSV and WebDataset formats.
+
+## Architecture
+
+```
+├── models/
+│   ├── encoders/          # DOFA, MixTransformer backbones
+│   ├── necks/             # Multi-level feature processing
+│   ├── decoders/          # UperNet decoder implementation
+│   └── heads/             # Segmentation heads (FCN, etc.)
+├── datamodules/           # Lightning DataModules
+├── datasets/              # WebDataset and CSV dataset implementations
+├── tasks_with_models/     # Lightning modules for training
+├── tools/                 # Utilities, callbacks, visualization
+└── samplers/              # Custom data sampling strategies
+```
+
+## Installation
+
+This project supports **CPU-only** and **GPU (CUDA 12.8)** PyTorch builds.
+The two environments are fully isolated and reproducible via separate lockfiles.
+
+### Requirements
+
+- Python **3.12**
+- [uv](https://docs.astral.sh/uv/) package manager
+
+### CPU-only
+
+Installs CPU-only PyTorch and works everywhere.
+
+```bash
+git clone https://github.com/NRCan/geo-deep-learning.git
+cd geo-deep-learning
+
+cp uv.lock.cpu uv.lock
+uv sync --extra cpu --extra dev --frozen
+```
+
+Verify:
+
+```bash
+python -c "import torch; print(torch.__version__, 'CUDA:', torch.cuda.is_available())"
+# Expected: 2.x.x+cpu CUDA: False
+```
+
+### GPU (CUDA 12.8)
+
+Use only on systems with NVIDIA GPUs and CUDA 12.8–compatible drivers.
+
+```bash
+cp uv.lock.cu128 uv.lock
+uv sync --extra cu128 --extra dev --frozen
+```
+
+Verify:
+
+```bash
+python -c "import torch; print(torch.__version__, 'CUDA:', torch.cuda.is_available())"
+# Expected: 2.x.x+cu128 CUDA: True
+```
+
+### Lockfiles
+
+| File        | PyTorch build | Use case                    |
+|-------------|---------------|-----------------------------|
+| `uv.lock.cpu`  | CPU-only      | CI, laptops with no GPUs   |
+| `uv.lock.cu128`| CUDA 12.8     | GPU training                |
+
+Copy the appropriate lockfile to `uv.lock` before running `uv sync`. Do not edit `uv.lock` manually.
+
+### Activate and run
+
+```bash
+source .venv/bin/activate   # Linux/macOS
+# or: .venv\Scripts\activate  # Windows
+
+uv run python geo_deep_learning/train.py fit --config configs/dofa_config_RGB.yaml
+```
+
+### Troubleshooting
+
+If you see `libcudart`, `nvidia-*`, or `cu12` errors on a CPU machine: ensure `uv.lock.cpu` is active and re-run `uv sync --extra cpu --frozen`.
+
+### Configuration
+
+Models are configured via YAML files in the `configs/` directory:
+
+```yaml
+model:
+  class_path: tasks_with_models.segmentation_dofa.SegmentationDOFA
+  init_args:
+    encoder: "dofa_base"
+    pretrained: true
+    image_size: [512, 512]
+    num_classes: 5
+    # ... other parameters
+
+data:
+  class_path: datamodules.wds_datamodule.MultiSensorDataModule
+  init_args:
+    sensor_configs_path: "path/to/sensor_configs.yaml"
+    batch_size: 16
+    patch_size: [512, 512]
+
+trainer:
+  max_epochs: 100
+  precision: 16-mixed
+  accelerator: gpu
+  devices: 1
+```
+
+## Supported Models
+
+### UNet++
+- Classic U-Net architecture with dense skip connections.
+- Multiple encoder backbones (ResNet, EfficientNet, etc.).
+- Available through segmentation-models-pytorch.
+
+### SegFormer
+- Transformer-based architecture for semantic segmentation.
+- Hierarchical feature representation (MixTransformer encoder).
+- Multiple model sizes (B0-B5).
+
+### DOFA (Dynamic One-For-All foundation model)
+- **DOFA Base**: 768-dim embeddings, suitable for most tasks.
+- **DOFA Large**: 1024-dim embeddings, higher capacity.
+- Multi-scale feature extraction with UperNet decoder.
+- Support for wavelength-specific processing.
+
+
+## Data Pipeline
+
+### Multi-Sensor DataModule
+- **Sensor Mixing**: Combine data from multiple sensors during training.
+- **WebDataset Format**: Efficient sharded data storage and loading.
+
+### Supported Data Formats
+- **WebDataset**: Sharded tar files with metadata.
+- **CSV**: Traditional CSV with file paths and labels.
+- **Multi-sensor**: YAML configuration for sensor-specific settings.
+
+## Training Features
+- **Large-scale training**: Distributed training strategies enabled with pytorch lightning.
+- **Mixed Precision Training**: 16-bit mixed precision for faster training.
+- **Gradient Clipping**: Configurable gradient clipping for stability.
+- **Early Stopping**: Automatic training termination based on validation metrics.
+- **Model Checkpointing**: Saves best models based on validation performance.
+- **MLflow Integration**: Experiment tracking, metrics logging, and model registry.
+- **Visualization Callbacks**: Built-in prediction visualization during training.
+- **Learning Rate Scheduling**: Cosine annealing, step decay, and more.
+
+## Development
+
+### Code Style
+- Follows PEP 8 with 88-character line limit
+- Uses Ruff for linting and formatting
+- Type hints for all function signatures
+- Comprehensive docstrings
+
+```bash
+# Lint code
+ruff check .
+
+# Format code
+ruff format .
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## Support
+
+For issues and questions:
+- Open an issue on GitHub

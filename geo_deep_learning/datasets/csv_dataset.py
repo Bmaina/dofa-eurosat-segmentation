@@ -159,6 +159,9 @@ class CSVDataset(NonGeoDataset):
         sample["mask_name"] = mask_name
         sample["mean"] = mean
         sample["std"] = std
+        sample["wavelengths"] = torch.tensor(
+            [0.665, 0.549, 0.481], dtype=torch.float32
+        )
         return sample
 
 

@@ -1,20 +1,17 @@
 """CSVDataModule."""
-
 from typing import Any
-
 from lightning.pytorch import LightningDataModule
 from torch.utils.data import DataLoader
-
 from geo_deep_learning.datasets.csv_dataset import CSVDataset
 
 
 class CSVDataModule(LightningDataModule):
     """CSV DataModule."""
 
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         batch_size: int = 16,
-        num_workers: int = 8,
+        num_workers: int = 0,
         data_type_max: int = 255,
         patch_size: tuple[int, int] = (512, 512),
         mean: list[float] | None = None,
@@ -35,7 +32,7 @@ class CSVDataModule(LightningDataModule):
             "std": std or [1.0, 1.0, 1.0],
         }
 
-    def setup(self, stage: str | None = None) -> None:  # noqa: ARG002
+    def setup(self, stage: str | None = None) -> None:
         """Create dataset."""
         self.train_dataset = CSVDataset(
             split="trn",
@@ -62,9 +59,6 @@ class CSVDataModule(LightningDataModule):
             self.train_dataset,
             batch_size=self.batch_size,
             num_workers=self.num_workers,
-            pin_memory=True,
-            persistent_workers=True,
-            prefetch_factor=2,
             shuffle=True,
         )
 
@@ -74,9 +68,6 @@ class CSVDataModule(LightningDataModule):
             self.val_dataset,
             batch_size=self.batch_size,
             num_workers=self.num_workers,
-            pin_memory=True,
-            persistent_workers=True,
-            prefetch_factor=2,
             shuffle=False,
         )
 
@@ -86,9 +77,6 @@ class CSVDataModule(LightningDataModule):
             self.test_dataset,
             batch_size=self.batch_size,
             num_workers=self.num_workers,
-            pin_memory=True,
-            persistent_workers=True,
-            prefetch_factor=2,
             shuffle=False,
         )
 
@@ -97,4 +85,3 @@ if __name__ == "__main__":
     csv_root_folder = ""
     patches_root_folder = csv_root_folder
     dataset = CSVDataModule(csv_root_folder, patches_root_folder)
-    # print(f"mean:{dataset.mean}, std:{dataset.std}")
