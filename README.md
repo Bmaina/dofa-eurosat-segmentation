@@ -56,7 +56,7 @@ Land cover classification from satellite imagery is a foundational capability th
 
 ---
 
-## 🧠 The Model — DOFA Foundation Model
+## 🧠 The Model-DOFA Foundation Model
 
 > **What is a Foundation Model?** A foundation model is a large AI model trained on massive amounts of data that can be reused and fine-tuned for many different tasks. Instead of training from scratch every time, you start with a model that already understands the world, similar to how a human expert brings prior knowledge to a new problem.
 
@@ -89,14 +89,14 @@ DOFA is a dynamic model — it adapts its processing based on which spectral ban
 |---|---|---|
 | 1 | **Data Loading** | CSV files point to image and mask pairs. DataLoader batches 4 images at a time. |
 | 2 | **Augmentation** | Random flips, rotations, and crops applied during training to increase diversity. |
-| 3 | **Normalisation** | Pixel values scaled to a standard range using dataset mean and std statistics. |
+| 3 | **Normalization** | Pixel values scaled to a standard range using dataset mean and std statistics. |
 | 4 | **Forward Pass** | Image passed through Encoder → Neck → Head to produce class probability maps. |
 | 5 | **Loss Calculation** | DiceLoss compares predictions to ground truth masks. Lower = better predictions. |
 | 6 | **Backpropagation** | Gradients flow back through the network. Only unfrozen layers are updated. |
-| 7 | **Optimisation** | Adam optimiser updates weights. Learning rate reduced automatically when loss plateaus. |
+| 7 | **Optimization** | Adam optimiser updates weights. Learning rate reduced automatically when loss plateaus. |
 | 8 | **Validation** | After each epoch, model evaluated on held-out val set. Best checkpoint saved. |
 
-> **Why DiceLoss?** DiceLoss measures the overlap between predicted and actual class regions. It handles class imbalance better than accuracy — highways occupy far fewer pixels than forests, so standard accuracy would just ignore them.
+> **Why DiceLoss?** DiceLoss measures the overlap between predicted and actual class regions. It handles class imbalance better than accuracy, highways occupy far fewer pixels than forests, so standard accuracy would just ignore them.
 
 ### Training Configuration
 
@@ -125,7 +125,7 @@ Hardware      : CPU (no GPU required)
 | Training Samples | 400 |
 | Training Epochs | 5 |
 
-> **Why These Numbers Matter:** Training a 140M parameter model from scratch would require millions of images and weeks of GPU time. By using DOFA's pretrained weights and only training 35M parameters (25% of the model), we achieved a functional segmentation pipeline in minutes on a standard laptop CPU — demonstrating the power of transfer learning with foundation models.
+> **Why These Numbers Matter:** Training a 140M parameter model from scratch would require millions of images and weeks of GPU time. By using DOFA's pretrained weights and only training 35M parameters (25% of the model), we achieved a functional segmentation pipeline in minutes on a standard laptop CPU, demonstrating the power of transfer learning with foundation models.
 
 The model uses **Mean Intersection over Union (mIoU)** as its primary evaluation metric. IoU measures how much the predicted region for each class overlaps with the actual ground truth region. A perfect prediction scores 1.0, random guessing scores close to 0.
 
@@ -188,9 +188,9 @@ Epoch 2/5: train_loss=0.89 val_loss=0.84
 
 ---
 
-## 🎯 Relevance to UN GeoAI Operations
+## 🎯 Relevance to GeoAI Operations
 
-This pipeline directly demonstrates capabilities required in operational GeoAI roles within UN peacekeeping and humanitarian contexts:
+This pipeline directly demonstrates capabilities required in most GeoAI contexts. For example:
 
 | Capability | Description |
 |---|---|
