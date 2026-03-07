@@ -83,7 +83,7 @@ DOFA is a dynamic model — it adapts its processing based on which spectral ban
 
 ---
 
-## ⚙️ How Training Works — Step by Step
+## ⚙️ How Training Works-Step by Step
 
 | Step | Name | Description |
 |---|---|---|
