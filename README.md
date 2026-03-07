@@ -58,7 +58,7 @@ Land cover classification from satellite imagery is a foundational capability th
 
 ## 🧠 The Model — DOFA Foundation Model
 
-> **What is a Foundation Model?** A foundation model is a large AI model trained on massive amounts of data that can be reused and fine-tuned for many different tasks. Instead of training from scratch every time, you start with a model that already understands the world — similar to how a human expert brings prior knowledge to a new problem.
+> **What is a Foundation Model?** A foundation model is a large AI model trained on massive amounts of data that can be reused and fine-tuned for many different tasks. Instead of training from scratch every time, you start with a model that already understands the world, similar to how a human expert brings prior knowledge to a new problem.
 
 **DOFA** (Dynamic One-For-All) is a Vision Transformer foundation model specifically designed for Earth Observation data. It was pretrained on millions of satellite images across multiple sensors and wavelengths, meaning it already "knows" what forests, water bodies, and urban areas look like from space before training begins.
 
