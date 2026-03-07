@@ -1,4 +1,4 @@
-# 🛰️ DOFA-EuroSAT Segmentation
+# 🛰️ DOFA (Dynamic One-For-All)-EuroSAT Segmentation
 
 > **End-to-End GeoAI Pipeline for Land Cover Classification using Sentinel-2 Satellite Imagery**
 
