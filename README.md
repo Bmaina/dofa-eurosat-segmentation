@@ -1,4 +1,4 @@
-# 🛰️ DOFA-EuroSAT Segmentation
+# 🛰️ DOFA (Dynamic One-For-All)-EuroSAT Sentinel-2 Imagery Segmentation
 
 > **End-to-End GeoAI Pipeline for Land Cover Classification using Sentinel-2 Satellite Imagery**
 
@@ -8,11 +8,11 @@
 
 ## 🌍 What Is This Project?
 
-This project trains an AI model to look at satellite images and automatically identify what type of land is in each pixel — whether it is a forest, a river, a highway, farmland, or a city. This is called **semantic segmentation** — giving every pixel in an image a meaningful label.
+This project trains an AI model to look at satellite images and automatically identify what type of land is in each pixel, whether it is a forest, a river, a highway, farmland, or a city. This is called **semantic segmentation**, giving every pixel in an image a meaningful label.
 
-Imagine looking at a satellite photo of the Earth from space. To a human, it is obvious which parts are forests, which are rivers, and which are cities. But teaching a computer to do this automatically — at scale, across entire countries, updated every few days — is one of the most powerful capabilities in modern GeoAI.
+Imagine looking at a satellite photo of the Earth from space. To a human, it is obvious which parts are forests, which are rivers, and which are cities. But teaching a computer to do this automatically at scale, across entire countries, updated every few days, is one of the most powerful capabilities in modern GeoAI.
 
-This pipeline uses **Sentinel-2** satellite imagery from the European Space Agency — freely available, globally covering, and updated every 5 days — to train a deep learning model that can classify land cover with no human labelling required at inference time.
+This pipeline uses **Sentinel-2** satellite imagery from the European Space Agency, freely available, globally covering, and updated every 5 days, to train a deep learning model that can classify land cover with no human labelling required at inference time.
 
 ---
 
@@ -33,7 +33,7 @@ Land cover classification from satellite imagery is a foundational capability th
 
 ## 📡 The Data — EuroSAT Sentinel-2
 
-**What is Sentinel-2?** Sentinel-2 is a pair of Earth observation satellites operated by the European Space Agency (ESA) as part of the Copernicus programme. They orbit at 786km altitude, cover the entire Earth every 5 days, and capture images at 10-metre resolution — meaning each pixel represents a 10m × 10m square on the ground.
+**What is Sentinel-2?** Sentinel-2 is a pair of Earth observation satellites operated by the European Space Agency (ESA) as part of the Copernicus programme. They orbit at 786km altitude, cover the entire Earth every 5 days, and capture images at 10-metre resolution, meaning each pixel represents a 10m × 10m square on the ground.
 
 **What is EuroSAT?** EuroSAT is a benchmark dataset of 27,000 labelled Sentinel-2 image patches, each 64×64 pixels, covering 10 different land cover classes across Europe. It is widely used in the research community to train and evaluate geospatial machine learning models.
 
@@ -54,11 +54,13 @@ Land cover classification from satellite imagery is a foundational capability th
 | Class 8 | 🏞️ | River |
 | Class 9 | 🌊 | Sea / Lake |
 
+![Class Palette](outputs/00_class_palette.png)
+
 ---
 
 ## 🧠 The Model — DOFA Foundation Model
 
-> **What is a Foundation Model?** A foundation model is a large AI model trained on massive amounts of data that can be reused and fine-tuned for many different tasks. Instead of training from scratch every time, you start with a model that already understands the world — similar to how a human expert brings prior knowledge to a new problem.
+> **What is a Foundation Model?** A foundation model is a large AI model trained on massive amounts of data that can be reused and fine-tuned for many different tasks. Instead of training from scratch every time, you start with a model that already understands the world, similar to how a human expert brings prior knowledge to a new problem.
 
 **DOFA** (Dynamic One-For-All) is a Vision Transformer foundation model specifically designed for Earth Observation data. It was pretrained on millions of satellite images across multiple sensors and wavelengths, meaning it already "knows" what forests, water bodies, and urban areas look like from space before training begins.
 
@@ -89,11 +91,11 @@ DOFA is a dynamic model — it adapts its processing based on which spectral ban
 |---|---|---|
 | 1 | **Data Loading** | CSV files point to image and mask pairs. DataLoader batches 4 images at a time. |
 | 2 | **Augmentation** | Random flips, rotations, and crops applied during training to increase diversity. |
-| 3 | **Normalisation** | Pixel values scaled to a standard range using dataset mean and std statistics. |
+| 3 | **Normalization** | Pixel values scaled to a standard range using dataset mean and std statistics. |
 | 4 | **Forward Pass** | Image passed through Encoder → Neck → Head to produce class probability maps. |
 | 5 | **Loss Calculation** | DiceLoss compares predictions to ground truth masks. Lower = better predictions. |
 | 6 | **Backpropagation** | Gradients flow back through the network. Only unfrozen layers are updated. |
-| 7 | **Optimisation** | Adam optimiser updates weights. Learning rate reduced automatically when loss plateaus. |
+| 7 | **Optimization** | Adam optimiser updates weights. Learning rate reduced automatically when loss plateaus. |
 | 8 | **Validation** | After each epoch, model evaluated on held-out val set. Best checkpoint saved. |
 
 > **Why DiceLoss?** DiceLoss measures the overlap between predicted and actual class regions. It handles class imbalance better than accuracy — highways occupy far fewer pixels than forests, so standard accuracy would just ignore them.
@@ -103,11 +105,8 @@ DOFA is a dynamic model — it adapts its processing based on which spectral ban
 ```
 Model         : DOFA-Base (Vision Transformer)
 Parameters    : 140M total | 35M trainable | 105M frozen
-Dataset       : EuroSAT Sentinel-2
-Train samples : 400 patches (40 per class)
-Val samples   : 100 patches (10 per class)
+Dataset       : EuroSAT Sentinel-2 (27,000 patches, 10 classes)
 Batch size    : 4 images per step
-Epochs        : 5
 Loss function : DiceLoss (multiclass)
 Optimiser     : Adam (lr=6e-5)
 Scheduler     : ReduceLROnPlateau (patience=3)
@@ -118,16 +117,50 @@ Hardware      : CPU (no GPU required)
 
 ## 📊 Results & Model Performance
 
+### Training Curves
+
+![Training Curves](outputs/07_training_curves.png)
+
 | Metric | Value |
 |---|---|
+| Best Validation Loss | 0.1409 (epoch 0) |
 | Total Parameters | 140M |
-| Trainable Parameters | 35M |
-| Training Samples | 400 |
-| Training Epochs | 5 |
+| Trainable Parameters | 35M (encoder frozen) |
+| Loss Function | DiceLoss (multiclass) |
 
-> **Why These Numbers Matter:** Training a 140M parameter model from scratch would require millions of images and weeks of GPU time. By using DOFA's pretrained weights and only training 35M parameters (25% of the model), we achieved a functional segmentation pipeline in minutes on a standard laptop CPU — demonstrating the power of transfer learning with foundation models.
+> **Why These Numbers Matter:** Training a 140M parameter model from scratch would require millions of images and weeks of GPU time. By using DOFA's pretrained weights and only training 35M parameters (25% of the model), the pipeline achieved a validation loss of **0.141 on the very first epoch** — demonstrating the power of transfer learning with Earth Observation foundation models.
 
-The model uses **Mean Intersection over Union (mIoU)** as its primary evaluation metric. IoU measures how much the predicted region for each class overlaps with the actual ground truth region. A perfect prediction scores 1.0, random guessing scores close to 0.
+### Class Distribution
+
+![Class Distribution](outputs/01_class_distribution.png)
+
+### Sample Patches — One Per Class
+
+![Sample Patches](outputs/02_sample_patches.png)
+
+### Predictions vs Ground Truth
+
+The model produces a per-pixel class label for every patch. Since EuroSAT patches each belong to a single land cover class, ground truth masks are uniform — the model's task is to learn the spatial texture and spectral signature of each class.
+
+![Predictions Grid](outputs/03_predictions_grid.png)
+
+### Error Analysis
+
+Red pixels show where the model predicted the wrong class. Errors tend to cluster at patch boundaries or in visually ambiguous classes (e.g. Pasture vs Herbaceous Vegetation, Highway vs Residential).
+
+![Error Maps](outputs/04_error_maps.png)
+
+### Per-Class IoU
+
+Intersection over Union (IoU) measures how much the predicted region for each class overlaps with the actual ground truth. A perfect prediction scores 1.0.
+
+![IoU per Class](outputs/05_iou_per_class.png)
+
+### Confusion Matrix
+
+Rows = true class, Columns = predicted class. Strong diagonal = accurate predictions. Off-diagonal cells reveal which classes the model most commonly confuses with each other.
+
+![Confusion Matrix](outputs/06_confusion_matrix.png)
 
 ---
 
@@ -148,7 +181,7 @@ pip install -e .
 
 ```bash
 # Download EuroSAT from https://madm.dfki.de/files/sentinel/EuroSAT.zip
-# Extract into the project folder, then run:
+# Extract into the project folder as EuroSAT/2750/<ClassName>/*.jpg, then run:
 python prepare_data.py      # Creates train/val/test CSV files
 python convert_to_tif.py   # Converts JPG patches to GeoTIFF format
 python create_masks.py     # Creates single-band class ID mask TIFs
@@ -161,13 +194,19 @@ python geo_deep_learning/train.py fit \
   --config configs/dofa_config_RGB.yaml
 ```
 
-### 4. Expected Training Output
+### 4. Run the Demo Notebook
+
+```bash
+jupyter lab demo.ipynb
+```
+
+The notebook runs the full inference pipeline and saves all visualisations to `outputs/`. No GPU required — runs on CPU in a few minutes.
+
+### 5. Expected Training Output
 
 ```
 Seed set to 42
 GPU available: False, used: False        # Runs on CPU
-Created dataset for trn split with 400 patches
-Created dataset for val split with 100 patches
 Downloading DOFA weights (402MB)...      # Only on first run
 
   | Name   | Type                  | Params
@@ -175,8 +214,8 @@ Downloading DOFA weights (402MB)...      # Only on first run
   35.0 M   Trainable params
   105 M    Non-trainable params (frozen encoder)
 
-Epoch 1/5: train_loss=0.94 val_loss=0.88
-Epoch 2/5: train_loss=0.89 val_loss=0.84
+Epoch 0: train_loss=0.317 val_loss=0.141
+Epoch 1: train_loss=0.257 val_loss=0.143
 ...
 ```
 
@@ -188,9 +227,9 @@ Epoch 2/5: train_loss=0.89 val_loss=0.84
 
 ---
 
-## 🎯 Relevance to UN GeoAI Operations
+## 🎯 Relevance to GeoAI Operations
 
-This pipeline directly demonstrates capabilities required in operational GeoAI roles within UN peacekeeping and humanitarian contexts:
+This pipeline directly demonstrates capabilities required in most GeoAI contexts:
 
 | Capability | Description |
 |---|---|
