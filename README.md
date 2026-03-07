@@ -8,7 +8,7 @@
 
 ## 🌍 What Is This Project?
 
-This project trains an AI model to look at satellite images and automatically identify what type of land is in each pixel — whether it is a forest, a river, a highway, farmland, or a city. This is called **semantic segmentation**, giving every pixel in an image a meaningful label.
+This project trains an AI model to look at satellite images and automatically identify what type of land is in each pixel, whether it is a forest, a river, a highway, farmland, or a city. This is called **semantic segmentation**, giving every pixel in an image a meaningful label.
 
 Imagine looking at a satellite photo of the Earth from space. To a human, it is obvious which parts are forests, which are rivers, and which are cities. But teaching a computer to do this automatically at scale, across entire countries, updated every few days, is one of the most powerful capabilities in modern GeoAI.
 
