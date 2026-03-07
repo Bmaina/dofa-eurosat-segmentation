@@ -33,7 +33,7 @@ Land cover classification from satellite imagery is a foundational capability th
 
 ## 📡 The Data — EuroSAT Sentinel-2
 
-**What is Sentinel-2?** Sentinel-2 is a pair of Earth observation satellites operated by the European Space Agency (ESA) as part of the Copernicus programme. They orbit at 786km altitude, cover the entire Earth every 5 days, and capture images at 10-metre resolution — meaning each pixel represents a 10m × 10m square on the ground.
+**What is Sentinel-2?** Sentinel-2 is a pair of Earth observation satellites operated by the European Space Agency (ESA) as part of the Copernicus programme. They orbit at 786km altitude, cover the entire Earth every 5 days, and capture images at 10-metre resolution, meaning each pixel represents a 10m × 10m square on the ground.
 
 **What is EuroSAT?** EuroSAT is a benchmark dataset of 27,000 labelled Sentinel-2 image patches, each 64×64 pixels, covering 10 different land cover classes across Europe. It is widely used in the research community to train and evaluate geospatial machine learning models.
 
