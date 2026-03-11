@@ -54,11 +54,9 @@ Land cover classification from satellite imagery is a foundational capability th
 | Class 8 | 🏞️ | River |
 | Class 9 | 🌊 | Sea / Lake |
 
-![Class Palette](outputs/00_class_palette.png)
-
 ---
 
-## 🧠 The Model — DOFA Foundation Model
+## 🧠 The Model-DOFA Foundation Model
 
 > **What is a Foundation Model?** A foundation model is a large AI model trained on massive amounts of data that can be reused and fine-tuned for many different tasks. Instead of training from scratch every time, you start with a model that already understands the world, similar to how a human expert brings prior knowledge to a new problem.
 
@@ -85,7 +83,7 @@ DOFA is a dynamic model — it adapts its processing based on which spectral ban
 
 ---
 
-## ⚙️ How Training Works — Step by Step
+## ⚙️ How Training Works-Step by Step
 
 | Step | Name | Description |
 |---|---|---|
@@ -98,15 +96,18 @@ DOFA is a dynamic model — it adapts its processing based on which spectral ban
 | 7 | **Optimization** | Adam optimiser updates weights. Learning rate reduced automatically when loss plateaus. |
 | 8 | **Validation** | After each epoch, model evaluated on held-out val set. Best checkpoint saved. |
 
-> **Why DiceLoss?** DiceLoss measures the overlap between predicted and actual class regions. It handles class imbalance better than accuracy — highways occupy far fewer pixels than forests, so standard accuracy would just ignore them.
+> **Why DiceLoss?** DiceLoss measures the overlap between predicted and actual class regions. It handles class imbalance better than accuracy, highways occupy far fewer pixels than forests, so standard accuracy would just ignore them.
 
 ### Training Configuration
 
 ```
 Model         : DOFA-Base (Vision Transformer)
 Parameters    : 140M total | 35M trainable | 105M frozen
-Dataset       : EuroSAT Sentinel-2 (27,000 patches, 10 classes)
+Dataset       : EuroSAT Sentinel-2
+Train samples : 400 patches (40 per class)
+Val samples   : 100 patches (10 per class)
 Batch size    : 4 images per step
+Epochs        : 5
 Loss function : DiceLoss (multiclass)
 Optimiser     : Adam (lr=6e-5)
 Scheduler     : ReduceLROnPlateau (patience=3)
@@ -117,50 +118,16 @@ Hardware      : CPU (no GPU required)
 
 ## 📊 Results & Model Performance
 
-### Training Curves
-
-![Training Curves](outputs/07_training_curves.png)
-
 | Metric | Value |
 |---|---|
-| Best Validation Loss | 0.1409 (epoch 0) |
 | Total Parameters | 140M |
-| Trainable Parameters | 35M (encoder frozen) |
-| Loss Function | DiceLoss (multiclass) |
+| Trainable Parameters | 35M |
+| Training Samples | 400 |
+| Training Epochs | 5 |
 
-> **Why These Numbers Matter:** Training a 140M parameter model from scratch would require millions of images and weeks of GPU time. By using DOFA's pretrained weights and only training 35M parameters (25% of the model), the pipeline achieved a validation loss of **0.141 on the very first epoch** — demonstrating the power of transfer learning with Earth Observation foundation models.
+> **Why These Numbers Matter:** Training a 140M parameter model from scratch would require millions of images and weeks of GPU time. By using DOFA's pretrained weights and only training 35M parameters (25% of the model), we achieved a functional segmentation pipeline in minutes on a standard laptop CPU, demonstrating the power of transfer learning with foundation models.
 
-### Class Distribution
-
-![Class Distribution](outputs/01_class_distribution.png)
-
-### Sample Patches — One Per Class
-
-![Sample Patches](outputs/02_sample_patches.png)
-
-### Predictions vs Ground Truth
-
-The model produces a per-pixel class label for every patch. Since EuroSAT patches each belong to a single land cover class, ground truth masks are uniform — the model's task is to learn the spatial texture and spectral signature of each class.
-
-![Predictions Grid](outputs/03_predictions_grid.png)
-
-### Error Analysis
-
-Red pixels show where the model predicted the wrong class. Errors tend to cluster at patch boundaries or in visually ambiguous classes (e.g. Pasture vs Herbaceous Vegetation, Highway vs Residential).
-
-![Error Maps](outputs/04_error_maps.png)
-
-### Per-Class IoU
-
-Intersection over Union (IoU) measures how much the predicted region for each class overlaps with the actual ground truth. A perfect prediction scores 1.0.
-
-![IoU per Class](outputs/05_iou_per_class.png)
-
-### Confusion Matrix
-
-Rows = true class, Columns = predicted class. Strong diagonal = accurate predictions. Off-diagonal cells reveal which classes the model most commonly confuses with each other.
-
-![Confusion Matrix](outputs/06_confusion_matrix.png)
+The model uses **Mean Intersection over Union (mIoU)** as its primary evaluation metric. IoU measures how much the predicted region for each class overlaps with the actual ground truth region. A perfect prediction scores 1.0, random guessing scores close to 0.
 
 ---
 
@@ -181,7 +148,7 @@ pip install -e .
 
 ```bash
 # Download EuroSAT from https://madm.dfki.de/files/sentinel/EuroSAT.zip
-# Extract into the project folder as EuroSAT/2750/<ClassName>/*.jpg, then run:
+# Extract into the project folder, then run:
 python prepare_data.py      # Creates train/val/test CSV files
 python convert_to_tif.py   # Converts JPG patches to GeoTIFF format
 python create_masks.py     # Creates single-band class ID mask TIFs
@@ -194,19 +161,13 @@ python geo_deep_learning/train.py fit \
   --config configs/dofa_config_RGB.yaml
 ```
 
-### 4. Run the Demo Notebook
-
-```bash
-jupyter lab demo.ipynb
-```
-
-The notebook runs the full inference pipeline and saves all visualisations to `outputs/`. No GPU required — runs on CPU in a few minutes.
-
-### 5. Expected Training Output
+### 4. Expected Training Output
 
 ```
 Seed set to 42
 GPU available: False, used: False        # Runs on CPU
+Created dataset for trn split with 400 patches
+Created dataset for val split with 100 patches
 Downloading DOFA weights (402MB)...      # Only on first run
 
   | Name   | Type                  | Params
@@ -214,8 +175,8 @@ Downloading DOFA weights (402MB)...      # Only on first run
   35.0 M   Trainable params
   105 M    Non-trainable params (frozen encoder)
 
-Epoch 0: train_loss=0.317 val_loss=0.141
-Epoch 1: train_loss=0.257 val_loss=0.143
+Epoch 1/5: train_loss=0.94 val_loss=0.88
+Epoch 2/5: train_loss=0.89 val_loss=0.84
 ...
 ```
 
@@ -229,7 +190,7 @@ Epoch 1: train_loss=0.257 val_loss=0.143
 
 ## 🎯 Relevance to GeoAI Operations
 
-This pipeline directly demonstrates capabilities required in most GeoAI contexts:
+This pipeline directly demonstrates capabilities required in most GeoAI contexts. For example:
 
 | Capability | Description |
 |---|---|
